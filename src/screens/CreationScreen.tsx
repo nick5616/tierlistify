@@ -93,6 +93,10 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
     const unrankedItems =
         currentTierList.items?.filter((item) => !item.tier) || [];
 
+    // Check if all items are ranked
+    const allItemsRanked =
+        unrankedItems.length === 0 && (currentTierList.items?.length || 0) > 0;
+
     const handleDragStart = (event: DragStartEvent) => {
         console.log("handleDragStart", event);
         setActiveId(event.active.id as string);
@@ -219,15 +223,33 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                             activeId={activeId}
                         />
 
-                        {/* Optional bottom section inside scrollable area */}
-                        {/* <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                                <p className="text-sm text-gray-600">
-                                    {remainingItems} remaining
-                                </p>
-                                <Button variant="primary" onClick={onComplete}>
-                                    Share
+                        {/* Completion section */}
+                        {allItemsRanked ? (
+                            <div className="pt-6 border-t border-gray-200">
+                                <div className="text-center mb-4">
+                                    <h3 className="text-lg font-semibold text-green-600 mb-2">
+                                        🎉 All items ranked!
+                                    </h3>
+                                    <p className="text-sm text-gray-600">
+                                        Ready to save and share your tier list
+                                    </p>
+                                </div>
+                                <Button
+                                    variant="primary"
+                                    fullWidth
+                                    onClick={_onComplete}
+                                    className="mb-8"
+                                >
+                                    Finish & Share
                                 </Button>
-                            </div> */}
+                            </div>
+                        ) : (
+                            <div className="pt-4 text-center text-sm text-gray-500">
+                                {unrankedItems.length} item
+                                {unrankedItems.length !== 1 ? "s" : ""}{" "}
+                                remaining to rank
+                            </div>
+                        )}
                     </div>
 
                     <DragOverlay>

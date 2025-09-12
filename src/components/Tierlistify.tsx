@@ -80,6 +80,32 @@ const Tierlistify: React.FC = () => {
         navigate(`/view/${completedTierList.id}`);
     };
 
+    const handleShare = async () => {
+        const shareUrl = `${window.location.origin}/view/${currentTierList.id}`;
+
+        try {
+            // Try using the Web Share API first (mobile)
+            if (navigator.share) {
+                await navigator.share({
+                    title: currentTierList.name || "Tier List",
+                    text: `Check out my tier list: ${currentTierList.name}`,
+                    url: shareUrl,
+                });
+            } else {
+                // Fallback to clipboard
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Link copied to clipboard!");
+            }
+        } catch (error) {
+            // If all else fails, show the URL
+            prompt("Copy this link to share:", shareUrl);
+        }
+    };
+
+    const handleGoHome = () => {
+        navigate("/");
+    };
+
     const handleBegin = (tiers: Tier[]) => {
         const newTierList = {
             ...currentTierList,
@@ -242,6 +268,8 @@ const Tierlistify: React.FC = () => {
                         <ViewScreen
                             tierList={currentTierList}
                             onBack={handleBack}
+                            onShare={handleShare}
+                            onGoHome={handleGoHome}
                         />
                     }
                 />
