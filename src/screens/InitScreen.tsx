@@ -166,18 +166,19 @@ const InitScreen: React.FC<InitScreenProps> = ({
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <div className="pt-4 border-t border-gray-200 mt-6 bg-white">
-                    <Button
-                        variant="primary"
-                        fullWidth
-                        onClick={() => onBegin(currentTiers)}
-                        disabled={!canBegin}
-                        className="mb-4"
-                    >
-                        Begin!
-                    </Button>
+                    {/* Button moved inside scrollable content */}
+                    <div className="pt-6 border-t border-gray-200">
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => onBegin(currentTiers)}
+                            disabled={!canBegin}
+                            className="mb-8"
+                        >
+                            Begin!
+                        </Button>
+                    </div>
                 </div>
             </div>
 
