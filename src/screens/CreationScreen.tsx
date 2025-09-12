@@ -169,7 +169,7 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
 
     return (
         <AnimatedScreen animation="slide">
-            <div className="max-w-md mx-auto h-full flex flex-col">
+            <div className="max-w-md mx-auto min-h-screen flex flex-col pb-safe">
                 <div className="flex items-center mb-6 pt-4">
                     <Button variant="icon" onClick={onBack} className="mr-3">
                         <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -185,8 +185,8 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                     onDragEnd={handleDragEnd}
                     onDragCancel={handleDragCancel}
                 >
-                    <div className="flex-1 flex flex-col space-y-4">
-                        <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-4 overflow-y-auto pb-6">
+                        <div className="space-y-2">
                             {currentTierList.tiers?.map((tier) => {
                                 const tieredItems =
                                     currentTierList.items?.filter(
@@ -206,13 +206,13 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                             })}
                         </div>
 
-                        {/* Unranked items section */}
+                        {/* Unranked items section - now inside scrollable content */}
                         <UnrankedItemsSection
                             items={unrankedItems}
                             activeId={activeId}
                         />
 
-                        {/* Fixed bottom section */}
+                        {/* Optional bottom section inside scrollable area */}
                         {/* <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                                 <p className="text-sm text-gray-600">
                                     {remainingItems} remaining
