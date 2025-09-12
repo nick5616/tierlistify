@@ -11,7 +11,7 @@ interface InitScreenProps {
     onUpdateTierList: (list: Partial<TierList>) => void;
     onBack: () => void;
     onAddItem: () => void;
-    onBegin: () => void;
+    onBegin: (tiers: Tier[]) => void;
 }
 
 const InitScreen: React.FC<InitScreenProps> = ({
@@ -73,7 +73,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
 
     return (
         <AnimatedScreen animation="slide">
-            <div className="max-w-md mx-auto">
+            <div className="max-w-md mx-auto h-full flex flex-col">
                 <div className="flex items-center mb-6 pt-4">
                     <Button variant="icon" onClick={onBack} className="mr-3">
                         <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -83,7 +83,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     </h1>
                 </div>
 
-                <div className="space-y-6">
+                <div className="flex-1 space-y-6 overflow-y-auto">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             What are you ranking?
@@ -166,13 +166,19 @@ const InitScreen: React.FC<InitScreenProps> = ({
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    {canBegin && (
-                        <Button variant="primary" fullWidth onClick={onBegin}>
+                {canBegin && (
+                    <div className="pt-4 border-t border-gray-200">
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => onBegin(currentTiers)}
+                        >
                             Begin!
                         </Button>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             {showTierModal && (

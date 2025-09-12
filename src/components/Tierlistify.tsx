@@ -1,6 +1,20 @@
-import React, { useState } from "react";
-import { Routes, Route, useNavigate, useSearchParams } from "react-router-dom";
-import { TierList, TierItem, Modal as ModalType, CreationTab } from "../types";
+import React, { useState, useEffect } from "react";
+import {
+    Routes,
+    Route,
+    useNavigate,
+    useSearchParams,
+    useParams,
+} from "react-router-dom";
+import {
+    TierList,
+    TierItem,
+    Modal as ModalType,
+    CreationTab,
+    Tier,
+} from "../types";
+import { useTierLists } from "../hooks/useTierLists";
+import { useCurrentTierList } from "../hooks/useCurrentTierList";
 import HomeScreen from "../screens/HomeScreen";
 import InitScreen from "../screens/InitScreen";
 import CreationScreen from "../screens/CreationScreen";
@@ -11,11 +25,20 @@ import ImageSearchModal from "../modals/ImageSearchModal";
 const Tierlistify: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
+    const { tierListId } = useParams<{ tierListId: string }>();
 
-    const [tierLists, setTierLists] = useState<TierList[]>([]);
-    const [currentTierList, setCurrentTierList] = useState<Partial<TierList>>(
-        {}
-    );
+    // Use custom hooks for persistent state management
+    const {
+        tierLists,
+        isLoading: tierListsLoading,
+        error: tierListsError,
+        addTierList,
+        getTierListById,
+    } = useTierLists();
+
+    const { currentTierList, updateCurrentTierList, clearCurrentTierList } =
+        useCurrentTierList();
+
     const [currentItemIndex, setCurrentItemIndex] = useState(0);
     const [creationTab, setCreationTab] = useState<CreationTab>("build");
     const [searchQuery, setSearchQuery] = useState("");
@@ -24,9 +47,32 @@ const Tierlistify: React.FC = () => {
 
     const modal = searchParams.get("modal") as ModalType;
 
+    // Load tier list when navigating to view or creation screens
+    useEffect(() => {
+        if (tierListId && !tierListsLoading) {
+            const existingTierList = getTierListById(tierListId);
+            if (
+                existingTierList &&
+                (!currentTierList.id || currentTierList.id !== tierListId)
+            ) {
+                updateCurrentTierList(existingTierList);
+            } else if (!existingTierList && tierListId) {
+                // Tier list not found, redirect to home
+                console.warn(`Tier list with ID ${tierListId} not found`);
+                navigate("/");
+            }
+        }
+    }, [
+        tierListId,
+        tierListsLoading,
+        getTierListById,
+        currentTierList.id,
+        updateCurrentTierList,
+        navigate,
+    ]);
+
     const handleCreateItem = (item: TierItem) => {
-        setCurrentTierList({
-            ...currentTierList,
+        updateCurrentTierList({
             items: [...(currentTierList.items || []), item],
         });
         setNewItemName("");
@@ -39,8 +85,7 @@ const Tierlistify: React.FC = () => {
         if (currentItem) {
             const updatedItems = [...(currentTierList.items || [])];
             updatedItems[currentItemIndex] = { ...currentItem, tier };
-            setCurrentTierList({
-                ...currentTierList,
+            updateCurrentTierList({
                 items: updatedItems,
             });
             setCurrentItemIndex(currentItemIndex + 1);
@@ -49,17 +94,18 @@ const Tierlistify: React.FC = () => {
 
     const handleComplete = () => {
         const completedTierList = currentTierList as TierList;
-        setTierLists([...tierLists, completedTierList]);
+        addTierList(completedTierList);
         navigate(`/view/${completedTierList.id}`);
     };
 
-    const handleBegin = () => {
+    const handleBegin = (tiers: Tier[]) => {
         const newTierList = {
             ...currentTierList,
             id: Date.now().toString(),
+            tiers: tiers,
             createdAt: new Date(),
         };
-        setCurrentTierList(newTierList);
+        updateCurrentTierList(newTierList);
         navigate(`/creation/${newTierList.id}`);
     };
 
@@ -68,12 +114,12 @@ const Tierlistify: React.FC = () => {
     };
 
     const handleCreateNew = () => {
-        setCurrentTierList({});
+        clearCurrentTierList();
         navigate("/init");
     };
 
     const handleSelectList = (list: TierList) => {
-        setCurrentTierList(list);
+        updateCurrentTierList(list);
         navigate(`/view/${list.id}`);
     };
 
@@ -94,8 +140,52 @@ const Tierlistify: React.FC = () => {
         setSearchParams({});
     };
 
+    const handleItemMove = (
+        itemId: string,
+        _fromTier: string | null,
+        toTier: string | null
+    ) => {
+        const updatedItems = (currentTierList.items || []).map((item) =>
+            item.id === itemId ? { ...item, tier: toTier } : item
+        );
+        updateCurrentTierList({ items: updatedItems });
+    };
+
+    // Show loading state while tier lists are being loaded
+    if (tierListsLoading) {
+        return (
+            <div className="h-screen w-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading your tier lists...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state if there's an error loading tier lists
+    if (tierListsError) {
+        return (
+            <div className="h-screen w-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                        Error Loading Data
+                    </h2>
+                    <p className="text-gray-600 mb-4">{tierListsError}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="relative">
+        <div className="h-screen w-screen overflow-hidden">
             <Routes>
                 <Route
                     path="/"
@@ -112,7 +202,7 @@ const Tierlistify: React.FC = () => {
                     element={
                         <InitScreen
                             currentTierList={currentTierList}
-                            onUpdateTierList={setCurrentTierList}
+                            onUpdateTierList={updateCurrentTierList}
                             onBack={handleBack}
                             onAddItem={handleAddItem}
                             onBegin={handleBegin}
@@ -130,6 +220,7 @@ const Tierlistify: React.FC = () => {
                             onTabChange={setCreationTab}
                             onItemTierSelect={handleItemTierSelect}
                             onComplete={handleComplete}
+                            onItemMove={handleItemMove}
                         />
                     }
                 />

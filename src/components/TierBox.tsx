@@ -1,4 +1,5 @@
 import React from "react";
+import { useDroppable } from "@dnd-kit/core";
 import { TierItem } from "../types";
 
 interface TierBoxProps {
@@ -6,6 +7,8 @@ interface TierBoxProps {
     color: string;
     items: TierItem[];
     isPreview?: boolean;
+    isDroppable?: boolean;
+    droppableId?: string;
 }
 
 const TierBox: React.FC<TierBoxProps> = ({
@@ -13,9 +16,20 @@ const TierBox: React.FC<TierBoxProps> = ({
     color,
     items,
     isPreview = false,
+    isDroppable = false,
+    droppableId,
 }) => {
+    const { isOver, setNodeRef } = useDroppable({
+        id: droppableId || tier,
+        disabled: !isDroppable,
+    });
     return (
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div
+            ref={isDroppable ? setNodeRef : undefined}
+            className={`bg-white rounded-lg overflow-hidden shadow-sm transition-all ${
+                isOver ? "ring-2 ring-blue-500 ring-opacity-50" : ""
+            }`}
+        >
             <div className="flex">
                 <div
                     className="w-16 flex items-center justify-center text-lg font-bold text-gray-800"
@@ -26,7 +40,7 @@ const TierBox: React.FC<TierBoxProps> = ({
                 <div
                     className={`flex-1 bg-gray-900 p-2 min-h-[60px] flex items-center gap-2 ${
                         isPreview ? "flex-wrap" : ""
-                    }`}
+                    } ${isOver ? "bg-blue-900" : ""}`}
                 >
                     {items.map((item) => (
                         <div

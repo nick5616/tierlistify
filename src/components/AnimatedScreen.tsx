@@ -11,11 +11,11 @@ const AnimatedScreen: React.FC<AnimatedScreenProps> = ({
 }) => {
     return (
         <div
-            className={`min-h-screen bg-gray-50 p-4 ${
+            className={`h-screen w-screen bg-gray-50 overflow-y-auto ${
                 animation === "fade" ? "animate-fade-in" : "animate-slide-in"
             }`}
         >
-            {children}
+            <div className="p-4 h-full">{children}</div>
         </div>
     );
 };

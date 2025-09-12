@@ -2,7 +2,7 @@ export interface TierItem {
     id: string;
     name: string;
     image: string;
-    tier?: string; // This will now store the tier name, not letter
+    tier?: string | null; // This will now store the tier name, not letter
 }
 
 export interface Tier {
