@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid3X3, Plus } from "lucide-react";
 import { TierList } from "../types";
-import { animations } from "../constants";
+import AnimatedScreen from "../components/AnimatedScreen";
 import Button from "../components/Button";
 
 interface HomeScreenProps {
@@ -16,7 +16,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     onSelectList,
 }) => {
     return (
-        <div className="min-h-screen bg-gray-50 p-4" style={animations.fadeIn}>
+        <AnimatedScreen animation="fade">
             <div className="max-w-md mx-auto">
                 <div className="text-center mb-8 pt-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -70,7 +70,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     Create New
                 </Button>
             </div>
-        </div>
+        </AnimatedScreen>
     );
 };
 

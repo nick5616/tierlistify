@@ -1,7 +1,8 @@
 import React from "react";
 import { ChevronLeft, Plus } from "lucide-react";
-import { TierList, TierItem } from "../types";
-import { animations, defaultTierColors } from "../constants";
+import { TierList } from "../types";
+import { defaultTierColors } from "../constants";
+import AnimatedScreen from "../components/AnimatedScreen";
 import Button from "../components/Button";
 
 interface InitScreenProps {
@@ -19,13 +20,16 @@ const InitScreen: React.FC<InitScreenProps> = ({
     onAddItem,
     onBegin,
 }) => {
+    const canBegin =
+        currentTierList.name && (currentTierList.items?.length || 0) > 0;
+
     return (
-        <div className="min-h-screen bg-gray-50 p-4" style={animations.slideIn}>
+        <AnimatedScreen animation="slide">
             <div className="max-w-md mx-auto">
                 <div className="flex items-center mb-6 pt-4">
-                    <button onClick={onBack} className="mr-3">
+                    <Button variant="icon" onClick={onBack} className="mr-3">
                         <ChevronLeft className="w-6 h-6 text-gray-600" />
-                    </button>
+                    </Button>
                     <h1 className="text-xl font-semibold text-gray-900">
                         Create Tier List
                     </h1>
@@ -60,7 +64,9 @@ const InitScreen: React.FC<InitScreenProps> = ({
                                     <div
                                         key={tier}
                                         className="aspect-square rounded-lg flex items-center justify-center text-lg font-bold text-gray-800 cursor-pointer border-2 border-transparent hover:border-gray-300 transition-colors"
-                                        style={{ backgroundColor: color }}
+                                        style={{
+                                            backgroundColor: color as string,
+                                        }}
                                     >
                                         {tier}
                                     </div>
@@ -74,16 +80,14 @@ const InitScreen: React.FC<InitScreenProps> = ({
                             What are the items?
                         </label>
                         <div className="grid grid-cols-4 gap-3 mb-4">
-                            {(currentTierList.items || []).map(
-                                (item: TierItem) => (
-                                    <div
-                                        key={item.id}
-                                        className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center text-2xl"
-                                    >
-                                        {item.image}
-                                    </div>
-                                )
-                            )}
+                            {(currentTierList.items || []).map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center text-2xl"
+                                >
+                                    {item.image}
+                                </div>
+                            ))}
                             <button
                                 className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
                                 onClick={onAddItem}
@@ -93,19 +97,14 @@ const InitScreen: React.FC<InitScreenProps> = ({
                         </div>
                     </div>
 
-                    {currentTierList.name &&
-                        (currentTierList.items?.length || 0) > 0 && (
-                            <Button
-                                variant="primary"
-                                fullWidth
-                                onClick={onBegin}
-                            >
-                                Begin!
-                            </Button>
-                        )}
+                    {canBegin && (
+                        <Button variant="primary" fullWidth onClick={onBegin}>
+                            Begin!
+                        </Button>
+                    )}
                 </div>
             </div>
-        </div>
+        </AnimatedScreen>
     );
 };
 

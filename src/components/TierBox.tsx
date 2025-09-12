@@ -4,30 +4,18 @@ import { TierItem } from "../types";
 interface TierBoxProps {
     tier: string;
     color: string;
-    items?: TierItem[];
-    onClick?: () => void;
-    interactive?: boolean;
-    className?: string;
+    items: TierItem[];
+    isPreview?: boolean;
 }
 
 const TierBox: React.FC<TierBoxProps> = ({
     tier,
     color,
-    items = [],
-    onClick,
-    interactive = false,
-    className = "",
+    items,
+    isPreview = false,
 }) => {
-    const baseStyles = "rounded-lg overflow-hidden shadow-sm";
-    const interactiveStyles = interactive
-        ? "cursor-pointer border-2 border-transparent hover:border-gray-300 transition-colors"
-        : "";
-
     return (
-        <div
-            className={`${baseStyles} ${interactiveStyles} ${className}`}
-            onClick={onClick}
-        >
+        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
             <div className="flex">
                 <div
                     className="w-16 flex items-center justify-center text-lg font-bold text-gray-800"
@@ -35,7 +23,11 @@ const TierBox: React.FC<TierBoxProps> = ({
                 >
                     {tier}
                 </div>
-                <div className="flex-1 bg-gray-900 p-2 min-h-[60px] flex items-center gap-2 flex-wrap">
+                <div
+                    className={`flex-1 bg-gray-900 p-2 min-h-[60px] flex items-center gap-2 ${
+                        isPreview ? "flex-wrap" : ""
+                    }`}
+                >
                     {items.map((item) => (
                         <div
                             key={item.id}

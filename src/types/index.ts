@@ -15,10 +15,10 @@ export interface TierList {
     icon?: string;
 }
 
-export interface TierColors {
-    [key: string]: string;
-}
-
 export type Screen = "home" | "init" | "creation" | "view";
 export type Modal = "item-upload" | "image-search" | null;
 export type CreationTab = "build" | "preview";
+
+export type TierColors = {
+    [key: string]: string;
+};

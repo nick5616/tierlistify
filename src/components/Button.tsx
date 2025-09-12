@@ -6,7 +6,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: LucideIcon;
     iconPosition?: "left" | "right";
     fullWidth?: boolean;
-    children?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,7 +15,6 @@ const Button: React.FC<ButtonProps> = ({
     fullWidth = false,
     children,
     className = "",
-    disabled,
     ...props
 }) => {
     const baseStyles =
@@ -31,12 +29,11 @@ const Button: React.FC<ButtonProps> = ({
         icon: "p-2 bg-blue-100 text-blue-600 hover:bg-blue-200",
     };
 
-    const widthClass = fullWidth ? "w-full" : "";
-
     return (
         <button
-            className={`${baseStyles} ${variantStyles[variant]} ${widthClass} ${className}`}
-            disabled={disabled}
+            className={`${baseStyles} ${variantStyles[variant]} ${
+                fullWidth ? "w-full" : ""
+            } ${className}`}
             {...props}
         >
             {Icon && iconPosition === "left" && <Icon className="w-5 h-5" />}
