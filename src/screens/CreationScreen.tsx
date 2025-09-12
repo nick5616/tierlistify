@@ -74,11 +74,7 @@ const UnrankedItemsSection: React.FC<{
 
 const CreationScreen: React.FC<CreationScreenProps> = ({
     currentTierList,
-    currentItemIndex,
-    creationTab,
     onBack,
-    onTabChange,
-    onItemTierSelect,
     onComplete: _onComplete,
     onItemMove,
 }) => {
@@ -90,8 +86,6 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
             },
         })
     );
-
-    const currentItem = currentTierList.items?.[currentItemIndex];
 
     // Get unranked items (items without a tier)
     const unrankedItems =
