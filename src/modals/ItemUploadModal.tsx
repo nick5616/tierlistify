@@ -10,6 +10,7 @@ interface ItemUploadModalProps {
     onNameChange: (name: string) => void;
     onSearchClick: () => void;
     onCreateItem: (item: TierItem) => void;
+    onClose?: () => void;
 }
 
 const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
@@ -18,6 +19,7 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
     onNameChange,
     onSearchClick,
     onCreateItem,
+    onClose,
 }) => {
     const handleCreate = () => {
         if (itemName && selectedImage) {
@@ -30,7 +32,7 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
     };
 
     return (
-        <Modal>
+        <Modal onClose={onClose}>
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                     Item name

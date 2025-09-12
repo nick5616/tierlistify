@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-    TierList,
-    TierItem,
-    Screen,
-    Modal as ModalType,
-    CreationTab,
-} from "../types";
-import { defaultTierColors } from "../constants";
+import { Routes, Route, useNavigate, useSearchParams } from "react-router-dom";
+import { TierList, TierItem, Modal as ModalType, CreationTab } from "../types";
 import HomeScreen from "../screens/HomeScreen";
 import InitScreen from "../screens/InitScreen";
 import CreationScreen from "../screens/CreationScreen";
@@ -15,8 +9,9 @@ import ItemUploadModal from "../modals/ItemUploadModal";
 import ImageSearchModal from "../modals/ImageSearchModal";
 
 const Tierlistify: React.FC = () => {
-    const [currentScreen, setCurrentScreen] = useState<Screen>("home");
-    const [currentModal, setCurrentModal] = useState<ModalType>(null);
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const [tierLists, setTierLists] = useState<TierList[]>([]);
     const [currentTierList, setCurrentTierList] = useState<Partial<TierList>>(
         {}
@@ -27,6 +22,8 @@ const Tierlistify: React.FC = () => {
     const [newItemName, setNewItemName] = useState("");
     const [selectedImage, setSelectedImage] = useState("");
 
+    const modal = searchParams.get("modal") as ModalType;
+
     const handleCreateItem = (item: TierItem) => {
         setCurrentTierList({
             ...currentTierList,
@@ -34,7 +31,7 @@ const Tierlistify: React.FC = () => {
         });
         setNewItemName("");
         setSelectedImage("");
-        setCurrentModal(null);
+        setSearchParams({});
     };
 
     const handleItemTierSelect = (tier: string) => {
@@ -53,79 +50,117 @@ const Tierlistify: React.FC = () => {
     const handleComplete = () => {
         const completedTierList = currentTierList as TierList;
         setTierLists([...tierLists, completedTierList]);
-        setCurrentScreen("view");
+        navigate(`/view/${completedTierList.id}`);
     };
 
     const handleBegin = () => {
-        setCurrentTierList({
+        const newTierList = {
             ...currentTierList,
             id: Date.now().toString(),
-            tiers: Object.keys(defaultTierColors),
             createdAt: new Date(),
-        });
-        setCurrentScreen("creation");
+        };
+        setCurrentTierList(newTierList);
+        navigate(`/creation/${newTierList.id}`);
+    };
+
+    const handleBack = () => {
+        navigate(-1);
+    };
+
+    const handleCreateNew = () => {
+        setCurrentTierList({});
+        navigate("/init");
+    };
+
+    const handleSelectList = (list: TierList) => {
+        setCurrentTierList(list);
+        navigate(`/view/${list.id}`);
+    };
+
+    const handleAddItem = () => {
+        setSearchParams({ modal: "item-upload" });
+    };
+
+    const handleSearchClick = () => {
+        setSearchParams({ modal: "image-search" });
+    };
+
+    const handleImageSelect = (image: string) => {
+        setSelectedImage(image);
+        setSearchParams({ modal: "item-upload" });
+    };
+
+    const handleCloseModal = () => {
+        setSearchParams({});
     };
 
     return (
         <div className="relative">
-            {currentScreen === "home" && (
-                <HomeScreen
-                    tierLists={tierLists}
-                    onCreateNew={() => setCurrentScreen("init")}
-                    onSelectList={(list) => {
-                        setCurrentTierList(list);
-                        setCurrentScreen("view");
-                    }}
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <HomeScreen
+                            tierLists={tierLists}
+                            onCreateNew={handleCreateNew}
+                            onSelectList={handleSelectList}
+                        />
+                    }
                 />
-            )}
-
-            {currentScreen === "init" && (
-                <InitScreen
-                    currentTierList={currentTierList}
-                    onUpdateTierList={setCurrentTierList}
-                    onBack={() => setCurrentScreen("home")}
-                    onAddItem={() => setCurrentModal("item-upload")}
-                    onBegin={handleBegin}
+                <Route
+                    path="/init"
+                    element={
+                        <InitScreen
+                            currentTierList={currentTierList}
+                            onUpdateTierList={setCurrentTierList}
+                            onBack={handleBack}
+                            onAddItem={handleAddItem}
+                            onBegin={handleBegin}
+                        />
+                    }
                 />
-            )}
-
-            {currentScreen === "creation" && (
-                <CreationScreen
-                    currentTierList={currentTierList}
-                    currentItemIndex={currentItemIndex}
-                    creationTab={creationTab}
-                    onBack={() => setCurrentScreen("init")}
-                    onTabChange={setCreationTab}
-                    onItemTierSelect={handleItemTierSelect}
-                    onComplete={handleComplete}
+                <Route
+                    path="/creation/:tierListId"
+                    element={
+                        <CreationScreen
+                            currentTierList={currentTierList}
+                            currentItemIndex={currentItemIndex}
+                            creationTab={creationTab}
+                            onBack={handleBack}
+                            onTabChange={setCreationTab}
+                            onItemTierSelect={handleItemTierSelect}
+                            onComplete={handleComplete}
+                        />
+                    }
                 />
-            )}
-
-            {currentScreen === "view" && (
-                <ViewScreen
-                    tierList={currentTierList}
-                    onBack={() => setCurrentScreen("home")}
+                <Route
+                    path="/view/:tierListId"
+                    element={
+                        <ViewScreen
+                            tierList={currentTierList}
+                            onBack={handleBack}
+                        />
+                    }
                 />
-            )}
+            </Routes>
 
-            {currentModal === "item-upload" && (
+            {modal === "item-upload" && (
                 <ItemUploadModal
                     itemName={newItemName}
                     selectedImage={selectedImage}
                     onNameChange={setNewItemName}
-                    onSearchClick={() => setCurrentModal("image-search")}
+                    onSearchClick={handleSearchClick}
                     onCreateItem={handleCreateItem}
+                    onClose={handleCloseModal}
                 />
             )}
 
-            {currentModal === "image-search" && (
+            {modal === "image-search" && (
                 <ImageSearchModal
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
-                    onImageSelect={(image) => {
-                        setSelectedImage(image);
-                        setCurrentModal("item-upload");
-                    }}
+                    onImageSelect={handleImageSelect}
+                    onClose={handleCloseModal}
                 />
             )}
         </div>

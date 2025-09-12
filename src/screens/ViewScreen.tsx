@@ -1,7 +1,6 @@
 import React from "react";
 import { ChevronLeft, Share2 } from "lucide-react";
 import { TierList } from "../types";
-import { defaultTierColors } from "../constants";
 import AnimatedScreen from "../components/AnimatedScreen";
 import Button from "../components/Button";
 import TierBox from "../components/TierBox";
@@ -36,13 +35,13 @@ const ViewScreen: React.FC<ViewScreenProps> = ({
                     {tierList.tiers?.map((tier) => {
                         const tieredItems =
                             tierList.items?.filter(
-                                (item) => item.tier === tier
+                                (item) => item.tier === tier.name
                             ) || [];
                         return (
                             <TierBox
-                                key={tier}
-                                tier={tier}
-                                color={defaultTierColors[tier]}
+                                key={tier.name}
+                                tier={tier.name}
+                                color={tier.color}
                                 items={tieredItems}
                                 isPreview
                             />

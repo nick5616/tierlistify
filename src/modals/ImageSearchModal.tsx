@@ -6,15 +6,17 @@ interface ImageSearchModalProps {
     searchQuery: string;
     onSearchChange: (query: string) => void;
     onImageSelect: (image: string) => void;
+    onClose?: () => void;
 }
 
 const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
     searchQuery,
     onSearchChange,
     onImageSelect,
+    onClose,
 }) => {
     return (
-        <Modal maxHeight>
+        <Modal maxHeight onClose={onClose}>
             <div>
                 <input
                     type="text"

@@ -1,9 +1,10 @@
-import React from "react";
-import { ChevronLeft, Plus } from "lucide-react";
-import { TierList } from "../types";
+import React, { useState } from "react";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { TierList, Tier } from "../types";
 import { defaultTierColors } from "../constants";
 import AnimatedScreen from "../components/AnimatedScreen";
 import Button from "../components/Button";
+import TierDesignModal from "../modals/TierDesignModal";
 
 interface InitScreenProps {
     currentTierList: Partial<TierList>;
@@ -20,8 +21,55 @@ const InitScreen: React.FC<InitScreenProps> = ({
     onAddItem,
     onBegin,
 }) => {
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [editingTier, setEditingTier] = useState<Tier | undefined>(undefined);
+    const [hoveredTier, setHoveredTier] = useState<string | null>(null);
+
+    // Initialize default tiers if none exist
+    const defaultTiers: Tier[] = Object.entries(defaultTierColors)
+        .filter(([tier]) => tier !== "F") // Remove F tier
+        .map(([tier, color]) => ({ name: tier, color }));
+
+    const currentTiers = currentTierList.tiers || defaultTiers;
     const canBegin =
         currentTierList.name && (currentTierList.items?.length || 0) > 0;
+
+    const handleAddTier = () => {
+        setEditingTier(undefined);
+        setShowTierModal(true);
+    };
+
+    const handleEditTier = (tier: Tier) => {
+        setEditingTier(tier);
+        setShowTierModal(true);
+    };
+
+    const handleSaveTier = (tier: Tier) => {
+        let updatedTiers: Tier[];
+
+        if (editingTier) {
+            // Update existing tier
+            updatedTiers = currentTiers.map((t) =>
+                t.name === editingTier.name ? tier : t
+            );
+        } else {
+            // Add new tier
+            updatedTiers = [...currentTiers, tier];
+        }
+
+        onUpdateTierList({
+            ...currentTierList,
+            tiers: updatedTiers,
+        });
+    };
+
+    const handleDeleteTier = (tierName: string) => {
+        const updatedTiers = currentTiers.filter((t) => t.name !== tierName);
+        onUpdateTierList({
+            ...currentTierList,
+            tiers: updatedTiers,
+        });
+    };
 
     return (
         <AnimatedScreen animation="slide">
@@ -59,19 +107,41 @@ const InitScreen: React.FC<InitScreenProps> = ({
                             What are the tiers?
                         </label>
                         <div className="grid grid-cols-3 gap-3">
-                            {Object.entries(defaultTierColors).map(
-                                ([tier, color]) => (
-                                    <div
-                                        key={tier}
-                                        className="aspect-square rounded-lg flex items-center justify-center text-lg font-bold text-gray-800 cursor-pointer border-2 border-transparent hover:border-gray-300 transition-colors"
-                                        style={{
-                                            backgroundColor: color as string,
-                                        }}
-                                    >
-                                        {tier}
-                                    </div>
-                                )
-                            )}
+                            {currentTiers.map((tier) => (
+                                <div
+                                    key={tier.name}
+                                    className="aspect-square rounded-lg flex items-center justify-center text-lg font-bold text-gray-800 cursor-pointer border-2 border-transparent hover:border-gray-300 transition-all relative group"
+                                    style={{
+                                        backgroundColor: tier.color,
+                                    }}
+                                    onMouseEnter={() =>
+                                        setHoveredTier(tier.name)
+                                    }
+                                    onMouseLeave={() => setHoveredTier(null)}
+                                    onClick={() => handleEditTier(tier)}
+                                >
+                                    {tier.name}
+                                    {hoveredTier === tier.name && (
+                                        <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg flex items-center justify-center">
+                                            <button
+                                                className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteTier(tier.name);
+                                                }}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                className="aspect-square rounded-lg flex items-center justify-center text-2xl font-bold text-gray-400 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:text-gray-600 transition-colors"
+                                onClick={handleAddTier}
+                            >
+                                <Plus className="w-6 h-6" />
+                            </button>
                         </div>
                     </div>
 
@@ -104,6 +174,14 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     )}
                 </div>
             </div>
+
+            {showTierModal && (
+                <TierDesignModal
+                    onClose={() => setShowTierModal(false)}
+                    onSave={handleSaveTier}
+                    existingTier={editingTier}
+                />
+            )}
         </AnimatedScreen>
     );
 };

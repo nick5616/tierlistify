@@ -80,17 +80,16 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                                 <div className="grid grid-cols-3 gap-3">
                                     {currentTierList.tiers?.map((tier) => (
                                         <button
-                                            key={tier}
+                                            key={tier.name}
                                             className="aspect-square rounded-lg flex items-center justify-center text-xl font-bold text-gray-800 hover:scale-105 transition-transform shadow-sm"
                                             style={{
-                                                backgroundColor:
-                                                    defaultTierColors[tier],
+                                                backgroundColor: tier.color,
                                             }}
                                             onClick={() =>
-                                                onItemTierSelect(tier)
+                                                onItemTierSelect(tier.name)
                                             }
                                         >
-                                            {tier}
+                                            {tier.name}
                                         </button>
                                     ))}
                                 </div>
@@ -118,13 +117,13 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                         {currentTierList.tiers?.map((tier) => {
                             const tieredItems =
                                 currentTierList.items?.filter(
-                                    (item) => item.tier === tier
+                                    (item) => item.tier === tier.name
                                 ) || [];
                             return (
                                 <TierBox
-                                    key={tier}
-                                    tier={tier}
-                                    color={defaultTierColors[tier]}
+                                    key={tier.name}
+                                    tier={tier.name}
+                                    color={tier.color}
                                     items={tieredItems}
                                 />
                             );
