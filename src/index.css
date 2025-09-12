@@ -11,6 +11,19 @@ body {
     overflow: hidden;
 }
 
+/* Mobile viewport fixes */
+@supports (height: 100dvh) {
+    html,
+    body {
+        height: 100dvh; /* Dynamic viewport height for mobile */
+    }
+}
+
+/* Safe area for mobile devices */
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

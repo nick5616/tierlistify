@@ -73,7 +73,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
 
     return (
         <AnimatedScreen animation="slide">
-            <div className="max-w-md mx-auto h-full flex flex-col">
+            <div className="max-w-md mx-auto min-h-screen flex flex-col pb-safe">
                 <div className="flex items-center mb-6 pt-4">
                     <Button variant="icon" onClick={onBack} className="mr-3">
                         <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -83,7 +83,7 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     </h1>
                 </div>
 
-                <div className="flex-1 space-y-6 overflow-y-auto">
+                <div className="flex-1 space-y-6 overflow-y-auto pb-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             What are you ranking?
@@ -168,12 +168,13 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 mt-6 bg-white">
                     <Button
                         variant="primary"
                         fullWidth
                         onClick={() => onBegin(currentTiers)}
                         disabled={!canBegin}
+                        className="mb-4"
                     >
                         Begin!
                     </Button>

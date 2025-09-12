@@ -184,6 +184,26 @@ const Tierlistify: React.FC = () => {
                 <Route path="/test" element={<DragTestComponent />} />
                 <Route path="/native" element={<NativeDragTest />} />
                 <Route
+                    path="/debug-routes"
+                    element={
+                        <div style={{ padding: 20 }}>
+                            <h1>Debug Routes</h1>
+                            <p>If you can see this, routing is working!</p>
+                            <ul>
+                                <li>
+                                    <a href="/test">Go to /test</a>
+                                </li>
+                                <li>
+                                    <a href="/native">Go to /native</a>
+                                </li>
+                                <li>
+                                    <a href="/">Go to home</a>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                />
+                <Route
                     path="/"
                     element={
                         <HomeScreen
