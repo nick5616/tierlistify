@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronLeft } from "lucide-react";
-import { TierList, CreationTab } from "../types";
+import { TierList } from "../types";
 import AnimatedScreen from "../components/AnimatedScreen";
 import Button from "../components/Button";
 import TierBox from "../components/TierBox";
@@ -11,22 +11,16 @@ import {
     DragOverlay,
     DragStartEvent,
     PointerSensor,
+    MouseSensor,
     useSensor,
     useSensors,
     useDroppable,
+    closestCenter,
 } from "@dnd-kit/core";
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 
 interface CreationScreenProps {
     currentTierList: Partial<TierList>;
-    currentItemIndex: number;
-    creationTab: CreationTab;
     onBack: () => void;
-    onTabChange: (tab: CreationTab) => void;
-    onItemTierSelect: (tier: string) => void;
     onComplete: () => void;
     onItemMove?: (
         itemId: string,
@@ -55,18 +49,13 @@ const UnrankedItemsSection: React.FC<{
                     isOver ? "bg-blue-100" : ""
                 }`}
             >
-                <SortableContext
-                    items={items.map((item) => item.id)}
-                    strategy={verticalListSortingStrategy}
-                >
-                    {items.map((item) => (
-                        <DraggableItem
-                            key={item.id}
-                            item={item}
-                            isDragging={activeId === item.id}
-                        />
-                    ))}
-                </SortableContext>
+                {items.map((item) => (
+                    <DraggableItem
+                        key={item.id}
+                        item={item}
+                        isDragging={activeId === item.id}
+                    />
+                ))}
             </div>
         </div>
     );
@@ -80,9 +69,15 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
 }) => {
     const [activeId, setActiveId] = React.useState<string | null>(null);
     const sensors = useSensors(
+        useSensor(MouseSensor, {
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                delay: 0,
+                tolerance: 0,
             },
         })
     );
@@ -92,14 +87,39 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
         currentTierList.items?.filter((item) => !item.tier) || [];
 
     const handleDragStart = (event: DragStartEvent) => {
+        console.log("handleDragStart", event);
         setActiveId(event.active.id as string);
     };
 
+    const handleDragCancel = (event: any) => {
+        console.log("handleDragCancel", event);
+        console.log("Cancel reason:", event.reason);
+        console.log("Event details:", {
+            activatorEvent: event.activatorEvent,
+            active: event.active,
+            collisions: event.collisions,
+            delta: event.delta,
+            over: event.over,
+        });
+        setActiveId(null);
+    };
+
     const handleDragEnd = (event: DragEndEvent) => {
+        console.log("handleDragEnd", event);
+        console.log("onItemMove exists:", !!onItemMove);
         const { active, over } = event;
         setActiveId(null);
 
-        if (!over || !onItemMove) return;
+        console.log("over:", over);
+        if (!over || !onItemMove) {
+            console.log(
+                "Early return - over:",
+                !!over,
+                "onItemMove:",
+                !!onItemMove
+            );
+            return;
+        }
 
         const itemId = active.id as string;
         const targetTier = over.id as string;
@@ -108,17 +128,42 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
         const item = currentTierList.items?.find((i) => i.id === itemId);
         const currentTier = item?.tier || null;
 
+        console.log("Drag end details:", {
+            itemId,
+            targetTier,
+            currentTier,
+            item,
+        });
+
         // Handle dropping to unranked section
         if (targetTier === "unranked") {
             if (currentTier !== null) {
+                console.log(
+                    "Moving to unranked:",
+                    itemId,
+                    currentTier,
+                    "→",
+                    null
+                );
                 onItemMove(itemId, currentTier, null);
+            } else {
+                console.log("Item already unranked, no move needed");
             }
             return;
         }
 
         // Only move if it's a different tier
         if (currentTier !== targetTier) {
+            console.log(
+                "Moving between tiers:",
+                itemId,
+                currentTier,
+                "→",
+                targetTier
+            );
             onItemMove(itemId, currentTier, targetTier);
+        } else {
+            console.log("Item already in target tier, no move needed");
         }
     };
 
@@ -135,11 +180,13 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                 </div>
                 <DndContext
                     sensors={sensors}
+                    collisionDetection={closestCenter}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
+                    onDragCancel={handleDragCancel}
                 >
-                    <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
-                        <div className="flex-1 overflow-y-auto space-y-2">
+                    <div className="flex-1 flex flex-col space-y-4">
+                        <div className="flex-1 space-y-2">
                             {currentTierList.tiers?.map((tier) => {
                                 const tieredItems =
                                     currentTierList.items?.filter(
@@ -153,6 +200,7 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
                                         items={tieredItems}
                                         isDroppable={true}
                                         droppableId={tier.name}
+                                        activeId={activeId}
                                     />
                                 );
                             })}
@@ -177,7 +225,7 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
 
                     <DragOverlay>
                         {activeId ? (
-                            <div className="w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden shadow-lg">
+                            <div className="w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden shadow-lg border-2 border-blue-500">
                                 {(() => {
                                     const item = currentTierList.items?.find(
                                         (i) => i.id === activeId

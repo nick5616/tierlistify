@@ -6,13 +6,7 @@ import {
     useSearchParams,
     useParams,
 } from "react-router-dom";
-import {
-    TierList,
-    TierItem,
-    Modal as ModalType,
-    CreationTab,
-    Tier,
-} from "../types";
+import { TierList, TierItem, Modal as ModalType, Tier } from "../types";
 import { useTierLists } from "../hooks/useTierLists";
 import { useCurrentTierList } from "../hooks/useCurrentTierList";
 import HomeScreen from "../screens/HomeScreen";
@@ -21,6 +15,8 @@ import CreationScreen from "../screens/CreationScreen";
 import ViewScreen from "../screens/ViewScreen";
 import ItemUploadModal from "../modals/ItemUploadModal";
 import ImageSearchModal from "../modals/ImageSearchModal";
+import DragTestComponent from "./DragTestComponent";
+import NativeDragTest from "./NativeDragTest";
 
 const Tierlistify: React.FC = () => {
     const navigate = useNavigate();
@@ -39,8 +35,6 @@ const Tierlistify: React.FC = () => {
     const { currentTierList, updateCurrentTierList, clearCurrentTierList } =
         useCurrentTierList();
 
-    const [currentItemIndex, setCurrentItemIndex] = useState(0);
-    const [creationTab, setCreationTab] = useState<CreationTab>("build");
     const [searchQuery, setSearchQuery] = useState("");
     const [newItemName, setNewItemName] = useState("");
     const [selectedImage, setSelectedImage] = useState("");
@@ -78,18 +72,6 @@ const Tierlistify: React.FC = () => {
         setNewItemName("");
         setSelectedImage("");
         setSearchParams({});
-    };
-
-    const handleItemTierSelect = (tier: string) => {
-        const currentItem = currentTierList.items?.[currentItemIndex];
-        if (currentItem) {
-            const updatedItems = [...(currentTierList.items || [])];
-            updatedItems[currentItemIndex] = { ...currentItem, tier };
-            updateCurrentTierList({
-                items: updatedItems,
-            });
-            setCurrentItemIndex(currentItemIndex + 1);
-        }
     };
 
     const handleComplete = () => {
@@ -145,10 +127,22 @@ const Tierlistify: React.FC = () => {
         _fromTier: string | null,
         toTier: string | null
     ) => {
+        console.log("handleItemMove called:", {
+            itemId,
+            fromTier: _fromTier,
+            toTier,
+            currentItems: currentTierList.items,
+        });
+
         const updatedItems = (currentTierList.items || []).map((item) =>
             item.id === itemId ? { ...item, tier: toTier } : item
         );
+
+        console.log("Updated items:", updatedItems);
+
         updateCurrentTierList({ items: updatedItems });
+
+        console.log("Item move completed");
     };
 
     // Show loading state while tier lists are being loaded
@@ -187,6 +181,8 @@ const Tierlistify: React.FC = () => {
     return (
         <div className="h-screen w-screen overflow-hidden">
             <Routes>
+                <Route path="/test" element={<DragTestComponent />} />
+                <Route path="/native" element={<NativeDragTest />} />
                 <Route
                     path="/"
                     element={
@@ -214,11 +210,7 @@ const Tierlistify: React.FC = () => {
                     element={
                         <CreationScreen
                             currentTierList={currentTierList}
-                            currentItemIndex={currentItemIndex}
-                            creationTab={creationTab}
                             onBack={handleBack}
-                            onTabChange={setCreationTab}
-                            onItemTierSelect={handleItemTierSelect}
                             onComplete={handleComplete}
                             onItemMove={handleItemMove}
                         />

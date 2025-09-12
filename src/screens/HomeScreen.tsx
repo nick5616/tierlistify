@@ -23,6 +23,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                         Tierlistify
                     </h1>
                     <p className="text-gray-600">Create and share tier lists</p>
+                    <div className="mt-2 space-x-4">
+                        <a
+                            href="/test"
+                            className="text-xs text-blue-500 underline"
+                        >
+                            @dnd-kit Test
+                        </a>
+                        <a
+                            href="/native"
+                            className="text-xs text-green-500 underline"
+                        >
+                            Native HTML5 Test
+                        </a>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center">

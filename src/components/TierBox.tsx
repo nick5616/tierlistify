@@ -1,6 +1,7 @@
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { TierItem } from "../types";
+import DraggableItem from "./DraggableItem";
 
 interface TierBoxProps {
     tier: string;
@@ -9,6 +10,7 @@ interface TierBoxProps {
     isPreview?: boolean;
     isDroppable?: boolean;
     droppableId?: string;
+    activeId?: string | null;
 }
 
 const TierBox: React.FC<TierBoxProps> = ({
@@ -18,6 +20,7 @@ const TierBox: React.FC<TierBoxProps> = ({
     isPreview = false,
     isDroppable = false,
     droppableId,
+    activeId,
 }) => {
     const { isOver, setNodeRef } = useDroppable({
         id: droppableId || tier,
@@ -42,32 +45,43 @@ const TierBox: React.FC<TierBoxProps> = ({
                         isPreview ? "flex-wrap" : ""
                     } ${isOver ? "bg-blue-900" : ""}`}
                 >
-                    {items.map((item) => (
-                        <div
-                            key={item.id}
-                            className="w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden"
-                        >
-                            {item.image.startsWith("http") ? (
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        const target =
-                                            e.target as HTMLImageElement;
-                                        target.style.display = "none";
-                                        const parent = target.parentElement;
-                                        if (parent) {
-                                            parent.innerHTML =
-                                                '<div class="text-xl">🖼️</div>';
-                                        }
-                                    }}
-                                />
-                            ) : (
-                                <div className="text-xl">{item.image}</div>
-                            )}
-                        </div>
-                    ))}
+                    {isDroppable
+                        ? items.map((item) => (
+                              <DraggableItem
+                                  key={item.id}
+                                  item={item}
+                                  isDragging={activeId === item.id}
+                              />
+                          ))
+                        : items.map((item) => (
+                              <div
+                                  key={item.id}
+                                  className="w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden"
+                              >
+                                  {item.image.startsWith("http") ? (
+                                      <img
+                                          src={item.image}
+                                          alt={item.name}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                              const target =
+                                                  e.target as HTMLImageElement;
+                                              target.style.display = "none";
+                                              const parent =
+                                                  target.parentElement;
+                                              if (parent) {
+                                                  parent.innerHTML =
+                                                      '<div class="text-xl">🖼️</div>';
+                                              }
+                                          }}
+                                      />
+                                  ) : (
+                                      <div className="text-xl">
+                                          {item.image}
+                                      </div>
+                                  )}
+                              </div>
+                          ))}
                 </div>
             </div>
         </div>
