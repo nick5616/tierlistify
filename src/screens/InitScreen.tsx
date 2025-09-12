@@ -168,17 +168,16 @@ const InitScreen: React.FC<InitScreenProps> = ({
                     </div>
                 </div>
 
-                {canBegin && (
-                    <div className="pt-4 border-t border-gray-200">
-                        <Button
-                            variant="primary"
-                            fullWidth
-                            onClick={() => onBegin(currentTiers)}
-                        >
-                            Begin!
-                        </Button>
-                    </div>
-                )}
+                <div className="pt-4 border-t border-gray-200">
+                    <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => onBegin(currentTiers)}
+                        disabled={!canBegin}
+                    >
+                        Begin!
+                    </Button>
+                </div>
             </div>
 
             {showTierModal && (
