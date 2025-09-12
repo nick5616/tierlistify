@@ -17,6 +17,7 @@ import ItemUploadModal from "../modals/ItemUploadModal";
 import ImageSearchModal from "../modals/ImageSearchModal";
 import DragTestComponent from "./DragTestComponent";
 import NativeDragTest from "./NativeDragTest";
+import LayoutWithAds from "./LayoutWithAds";
 
 const Tierlistify: React.FC = () => {
     const navigate = useNavigate();
@@ -232,45 +233,53 @@ const Tierlistify: React.FC = () => {
                 <Route
                     path="/"
                     element={
-                        <HomeScreen
-                            tierLists={tierLists}
-                            onCreateNew={handleCreateNew}
-                            onSelectList={handleSelectList}
-                        />
+                        <LayoutWithAds>
+                            <HomeScreen
+                                tierLists={tierLists}
+                                onCreateNew={handleCreateNew}
+                                onSelectList={handleSelectList}
+                            />
+                        </LayoutWithAds>
                     }
                 />
                 <Route
                     path="/init"
                     element={
-                        <InitScreen
-                            currentTierList={currentTierList}
-                            onUpdateTierList={updateCurrentTierList}
-                            onBack={handleBack}
-                            onAddItem={handleAddItem}
-                            onBegin={handleBegin}
-                        />
+                        <LayoutWithAds>
+                            <InitScreen
+                                currentTierList={currentTierList}
+                                onUpdateTierList={updateCurrentTierList}
+                                onBack={handleBack}
+                                onAddItem={handleAddItem}
+                                onBegin={handleBegin}
+                            />
+                        </LayoutWithAds>
                     }
                 />
                 <Route
                     path="/creation/:tierListId"
                     element={
-                        <CreationScreen
-                            currentTierList={currentTierList}
-                            onBack={handleBack}
-                            onComplete={handleComplete}
-                            onItemMove={handleItemMove}
-                        />
+                        <LayoutWithAds>
+                            <CreationScreen
+                                currentTierList={currentTierList}
+                                onBack={handleBack}
+                                onComplete={handleComplete}
+                                onItemMove={handleItemMove}
+                            />
+                        </LayoutWithAds>
                     }
                 />
                 <Route
                     path="/view/:tierListId"
                     element={
-                        <ViewScreen
-                            tierList={currentTierList}
-                            onBack={handleBack}
-                            onShare={handleShare}
-                            onGoHome={handleGoHome}
-                        />
+                        <LayoutWithAds>
+                            <ViewScreen
+                                tierList={currentTierList}
+                                onBack={handleBack}
+                                onShare={handleShare}
+                                onGoHome={handleGoHome}
+                            />
+                        </LayoutWithAds>
                     }
                 />
             </Routes>

@@ -64,3 +64,51 @@ body {
 .animate-slide-in {
     animation: slideIn 0.3s ease-out;
 }
+
+/* AdSense Banner Styles */
+.adsense-container {
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.bottom-ad-container {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile-specific ad styles */
+@media (max-width: 768px) {
+    .adsense-container {
+        max-width: 100%;
+        padding: 0 8px;
+    }
+
+    .bottom-ad-container {
+        padding: 8px;
+    }
+
+    /* Ensure ads don't interfere with mobile navigation */
+    .bottom-ad-container {
+        padding-bottom: env(safe-area-inset-bottom, 8px);
+    }
+}
+
+/* Layout with ads specific styles */
+.layout-with-ads {
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height on supported browsers */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure content scrolls properly above the ad */
+.layout-with-ads > div:first-child {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
