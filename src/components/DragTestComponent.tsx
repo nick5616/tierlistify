@@ -1,4 +1,10 @@
 import React, { useState } from "react";
+
+interface ItemsState {
+    area1: string[];
+    area2: string[];
+    area3: string[];
+}
 import {
     DndContext,
     DragEndEvent,
@@ -82,7 +88,7 @@ function DroppableTestArea({
 export default function DragTestComponent() {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [sensorType, setSensorType] = useState<string>("all");
-    const [items, setItems] = useState({
+    const [items, setItems] = useState<ItemsState>({
         area1: ["item1"],
         area2: ["item2"],
         area3: [],
