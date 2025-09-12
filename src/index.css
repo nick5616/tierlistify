@@ -24,6 +24,19 @@ body {
     padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
 
+/* Improve mobile touch dragging */
+[data-testid] {
+    touch-action: none; /* Prevent scrolling when touching draggable items */
+}
+
+/* Better touch targets for mobile */
+@media (pointer: coarse) {
+    .draggable-item {
+        min-height: 44px; /* Minimum touch target size */
+        min-width: 44px;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -22,9 +22,13 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item }) => {
             ref={setNodeRef}
             {...listeners}
             {...attributes}
-            className={`w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden cursor-grab border-2 ${
+            data-testid={`draggable-${item.id}`}
+            className={`w-12 h-12 bg-white rounded flex items-center justify-center overflow-hidden cursor-grab border-2 draggable-item ${
                 isDragging ? "border-blue-500" : "border-gray-200"
             }`}
+            style={{
+                touchAction: "none", // Prevent scrolling on this element
+            }}
         >
             {item.image.startsWith("http") ? (
                 <img

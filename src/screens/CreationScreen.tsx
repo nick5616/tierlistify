@@ -12,6 +12,7 @@ import {
     DragStartEvent,
     PointerSensor,
     MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     useDroppable,
@@ -71,13 +72,19 @@ const CreationScreen: React.FC<CreationScreenProps> = ({
     const sensors = useSensors(
         useSensor(MouseSensor, {
             activationConstraint: {
-                distance: 10,
+                distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 200, // 200ms touch delay to prevent scroll conflicts
+                tolerance: 8, // Allow 8px movement during delay
             },
         }),
         useSensor(PointerSensor, {
             activationConstraint: {
-                delay: 0,
-                tolerance: 0,
+                distance: 8, // Require 8px movement to distinguish from scroll
+                delay: 150, // 150ms delay reduces conflict with scroll gestures
             },
         })
     );
