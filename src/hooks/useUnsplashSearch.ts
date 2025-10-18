@@ -19,7 +19,7 @@ interface UnsplashSearchResponse {
     total: number;
 }
 
-const UNSPLASH_ACCESS_KEY = "k2XKY8duCHyNCgGklvFh91M7O8AXRJw_5u71mbxXd1k";
+const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 
 // Function to generate properly sized raw URL
 export const getSizedImageUrl = (rawUrl: string, size: number): string => {
