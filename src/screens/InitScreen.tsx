@@ -153,9 +153,19 @@ const InitScreen: React.FC<InitScreenProps> = ({
                             {(currentTierList.items || []).map((item) => (
                                 <div
                                     key={item.id}
-                                    className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center text-2xl"
+                                    className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden"
                                 >
-                                    {item.image}
+                                    {item.image.startsWith("http") ? (
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="text-2xl">
+                                            {item.image}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                             <button

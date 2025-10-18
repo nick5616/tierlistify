@@ -48,13 +48,19 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
         return () => window.removeEventListener("resize", updateImageSize);
     }, []);
 
-    // Auto-select the first image when search results come in
+    // Auto-select the first image when search results come in, or clear when no query
     useEffect(() => {
-        if (images.length > 0 && !selectedImage) {
-            // This will be handled by the parent component through onNameChange
-            // We'll show the preview but not auto-select
+        if (images.length > 0 && itemName.trim()) {
+            const firstImageUrl = getSizedImageUrl(
+                images[0].urls.raw,
+                imageSize
+            );
+            onImageSelect(firstImageUrl);
+        } else if (!itemName.trim() && selectedImage) {
+            // Clear the selected image when input is cleared
+            onImageSelect("");
         }
-    }, [images, selectedImage]);
+    }, [images, itemName, imageSize, onImageSelect, selectedImage]);
 
     const handleCreate = () => {
         if (itemName && selectedImage) {
@@ -64,10 +70,6 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                 image: selectedImage,
             });
         }
-    };
-
-    const handleImageSelect = (imageUrl: string) => {
-        onImageSelect(imageUrl);
     };
 
     return (
@@ -120,28 +122,15 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                                 imageSize
                             )}
                             alt={images[0].alt_description || "Search result"}
-                            className="max-w-full max-h-full object-contain rounded mb-2"
+                            className="max-w-full max-h-full object-contain rounded"
                             style={{
                                 width: `${imageSize}px`,
                                 height: `${imageSize}px`,
                             }}
                         />
-                        <p className="text-sm text-gray-600">
-                            First search result
+                        <p className="text-sm text-gray-600 mt-2">
+                            Auto-selected from search results
                         </p>
-                        <button
-                            onClick={() =>
-                                handleImageSelect(
-                                    getSizedImageUrl(
-                                        images[0].urls.raw,
-                                        imageSize
-                                    )
-                                )
-                            }
-                            className="mt-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
-                        >
-                            Select this image
-                        </button>
                     </div>
                 ) : (
                     <div className="text-center text-gray-500">

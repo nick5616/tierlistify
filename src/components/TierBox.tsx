@@ -2,6 +2,24 @@ import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { TierItem } from "../types";
 import DraggableItem from "./DraggableItem";
+import { getSizedImageUrl } from "../hooks/useUnsplashSearch";
+
+// Function to get appropriately sized image for tier list items
+const getTierItemImageUrl = (imageUrl: string): string => {
+    if (!imageUrl.startsWith("http")) {
+        return imageUrl; // Return as-is for emoji or other non-HTTP images
+    }
+
+    // If it's already a sized URL, extract the raw URL and resize it
+    if (imageUrl.includes("&w=") && imageUrl.includes("&h=")) {
+        // Extract the raw URL (everything before the first &w= parameter)
+        const rawUrl = imageUrl.split("&w=")[0];
+        return getSizedImageUrl(rawUrl, 48); // 48px for tier list items
+    }
+
+    // If it's a raw URL, add sizing parameters
+    return getSizedImageUrl(imageUrl, 48);
+};
 
 interface TierBoxProps {
     tier: string;
@@ -60,7 +78,7 @@ const TierBox: React.FC<TierBoxProps> = ({
                               >
                                   {item.image.startsWith("http") ? (
                                       <img
-                                          src={item.image}
+                                          src={getTierItemImageUrl(item.image)}
                                           alt={item.name}
                                           className="w-full h-full object-cover"
                                           onError={(e) => {

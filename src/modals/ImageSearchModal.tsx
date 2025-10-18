@@ -22,6 +22,7 @@ const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
     const { images, loading, error } = useUnsplashSearch(searchQuery, 1000);
     const gridRef = useRef<HTMLDivElement>(null);
     const [imageSize, setImageSize] = useState(100); // Default size for grid items
+    const [previewSize, setPreviewSize] = useState(300); // Size for preview/selection
 
     // Calculate image size based on grid container width
     useEffect(() => {
@@ -31,6 +32,12 @@ const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
                 // For 4-column grid, each item should be about 1/4 of container width minus gaps
                 const itemWidth = (containerWidth - 36) / 4; // 36px for 3 gaps of 12px each
                 setImageSize(Math.min(itemWidth, 150)); // Max 150px per item
+
+                // Set preview size to be larger for better quality in preview
+                // Use a reasonable size that works well for preview areas
+                setPreviewSize(
+                    Math.max(300, Math.min(400, containerWidth * 0.8))
+                );
             }
         };
 
@@ -69,7 +76,10 @@ const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
                             className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden hover:bg-blue-50 transition-colors border-2 border-transparent hover:border-blue-200"
                             onClick={() =>
                                 onImageSelect(
-                                    getSizedImageUrl(image.urls.raw, imageSize)
+                                    getSizedImageUrl(
+                                        image.urls.raw,
+                                        previewSize
+                                    )
                                 )
                             }
                         >

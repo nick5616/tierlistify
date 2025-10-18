@@ -137,6 +137,8 @@ const Tierlistify: React.FC = () => {
     };
 
     const handleSearchClick = () => {
+        // Auto-populate search with current item name
+        setSearchQuery(newItemName);
         setSearchParams({ modal: "image-search" });
     };
 
