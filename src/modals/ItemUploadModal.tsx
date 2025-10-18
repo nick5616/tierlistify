@@ -1,13 +1,18 @@
-import React from "react";
-import { Upload, Search, Camera } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Upload, Search, Camera, Loader2 } from "lucide-react";
 import { TierItem } from "../types";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
+import {
+    useUnsplashSearch,
+    getSizedImageUrl,
+} from "../hooks/useUnsplashSearch";
 
 interface ItemUploadModalProps {
     itemName: string;
     selectedImage: string;
     onNameChange: (name: string) => void;
+    onImageSelect: (image: string) => void;
     onSearchClick: () => void;
     onCreateItem: (item: TierItem) => void;
     onClose?: () => void;
@@ -17,10 +22,40 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
     itemName,
     selectedImage,
     onNameChange,
+    onImageSelect,
     onSearchClick,
     onCreateItem,
     onClose,
 }) => {
+    const { images, loading, error } = useUnsplashSearch(itemName, 1000);
+    const previewRef = useRef<HTMLDivElement>(null);
+    const [imageSize, setImageSize] = useState(200); // Default size
+
+    // Calculate image size based on preview component width
+    useEffect(() => {
+        const updateImageSize = () => {
+            if (previewRef.current) {
+                const width = previewRef.current.offsetWidth;
+                // Use the full width for the square image, accounting for padding
+                const size = Math.min(width - 32, 400); // Subtract padding, max 400px
+                setImageSize(size);
+            }
+        };
+
+        updateImageSize();
+        window.addEventListener("resize", updateImageSize);
+
+        return () => window.removeEventListener("resize", updateImageSize);
+    }, []);
+
+    // Auto-select the first image when search results come in
+    useEffect(() => {
+        if (images.length > 0 && !selectedImage) {
+            // This will be handled by the parent component through onNameChange
+            // We'll show the preview but not auto-select
+        }
+    }, [images, selectedImage]);
+
     const handleCreate = () => {
         if (itemName && selectedImage) {
             onCreateItem({
@@ -29,6 +64,10 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                 image: selectedImage,
             });
         }
+    };
+
+    const handleImageSelect = (imageUrl: string) => {
+        onImageSelect(imageUrl);
     };
 
     return (
@@ -46,13 +85,73 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                 />
             </div>
 
-            <div className="bg-gray-100 rounded-lg p-8 flex items-center justify-center min-h-[200px]">
-                {selectedImage ? (
-                    <div className="text-6xl">{selectedImage}</div>
+            <div
+                ref={previewRef}
+                className="bg-gray-100 rounded-lg p-8 flex items-center justify-center min-h-[200px]"
+            >
+                {loading ? (
+                    <div className="text-center text-gray-500">
+                        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin" />
+                        <p>Searching for images...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-red-500">
+                        <p>Error: {error}</p>
+                    </div>
+                ) : selectedImage ? (
+                    selectedImage.startsWith("http") ? (
+                        <img
+                            src={selectedImage}
+                            alt="Selected image"
+                            className="max-w-full max-h-full object-contain rounded"
+                            style={{
+                                width: `${imageSize}px`,
+                                height: `${imageSize}px`,
+                            }}
+                        />
+                    ) : (
+                        <div className="text-6xl">{selectedImage}</div>
+                    )
+                ) : images.length > 0 ? (
+                    <div className="text-center">
+                        <img
+                            src={getSizedImageUrl(
+                                images[0].urls.raw,
+                                imageSize
+                            )}
+                            alt={images[0].alt_description || "Search result"}
+                            className="max-w-full max-h-full object-contain rounded mb-2"
+                            style={{
+                                width: `${imageSize}px`,
+                                height: `${imageSize}px`,
+                            }}
+                        />
+                        <p className="text-sm text-gray-600">
+                            First search result
+                        </p>
+                        <button
+                            onClick={() =>
+                                handleImageSelect(
+                                    getSizedImageUrl(
+                                        images[0].urls.raw,
+                                        imageSize
+                                    )
+                                )
+                            }
+                            className="mt-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                        >
+                            Select this image
+                        </button>
+                    </div>
                 ) : (
                     <div className="text-center text-gray-500">
                         <Camera className="w-12 h-12 mx-auto mb-2" />
                         <p>Image preview</p>
+                        {itemName && (
+                            <p className="text-sm mt-2">
+                                Type to search for images...
+                            </p>
+                        )}
                     </div>
                 )}
             </div>

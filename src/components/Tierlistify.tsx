@@ -289,6 +289,7 @@ const Tierlistify: React.FC = () => {
                     itemName={newItemName}
                     selectedImage={selectedImage}
                     onNameChange={setNewItemName}
+                    onImageSelect={setSelectedImage}
                     onSearchClick={handleSearchClick}
                     onCreateItem={handleCreateItem}
                     onClose={handleCloseModal}

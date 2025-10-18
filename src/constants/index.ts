@@ -8,14 +8,3 @@ export const defaultTierColors: TierColors = {
     D: "#bae1ff",
     F: "#c9c9ff",
 };
-
-export const mockSearchResults = [
-    "🍎",
-    "🍌",
-    "🍊",
-    "🍇",
-    "🥝",
-    "🍓",
-    "🥭",
-    "🍑",
-];
