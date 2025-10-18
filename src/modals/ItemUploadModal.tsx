@@ -29,7 +29,9 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
 }) => {
     const { images, loading, error } = useUnsplashSearch(itemName, 1000);
     const previewRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageSize, setImageSize] = useState(200); // Default size
+    const [uploadedImage, setUploadedImage] = useState<string>("");
 
     // Calculate image size based on preview component width
     useEffect(() => {
@@ -48,9 +50,32 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
         return () => window.removeEventListener("resize", updateImageSize);
     }, []);
 
+    // Handle file upload
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result as string;
+                setUploadedImage(result);
+                onImageSelect(result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
     // Auto-select the first image when search results come in, or clear when no query
     useEffect(() => {
-        if (images.length > 0 && itemName.trim() && !previewRef.current) {
+        if (
+            images.length > 0 &&
+            itemName.trim() &&
+            !previewRef.current &&
+            !uploadedImage
+        ) {
             const firstImageUrl = getSizedImageUrl(
                 images[0].urls.raw,
                 imageSize
@@ -60,8 +85,16 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
         } else if (!itemName.trim() && selectedImage) {
             // Clear the selected image when input is cleared
             onImageSelect("");
+            setUploadedImage("");
         }
-    }, [images, itemName, imageSize, onImageSelect, selectedImage]);
+    }, [
+        images,
+        itemName,
+        imageSize,
+        onImageSelect,
+        selectedImage,
+        uploadedImage,
+    ]);
 
     const handleCreate = () => {
         if (itemName && selectedImage) {
@@ -104,7 +137,8 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                         <p>Error: {error}</p>
                     </div>
                 ) : selectedImage ? (
-                    selectedImage.startsWith("http") ? (
+                    selectedImage.startsWith("http") ||
+                    selectedImage.startsWith("data:") ? (
                         <img
                             src={selectedImage}
                             alt="Selected image"
@@ -149,7 +183,11 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-                <Button variant="secondary" icon={Upload}>
+                <Button
+                    variant="secondary"
+                    icon={Upload}
+                    onClick={handleUploadClick}
+                >
                     Upload Image
                 </Button>
                 <Button
@@ -160,6 +198,15 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
                     Search Image
                 </Button>
             </div>
+
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+            />
 
             <Button
                 variant="primary"
