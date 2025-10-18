@@ -5,6 +5,6 @@
 [functions]
   directory = "netlify/functions"
 
-# Disable secret scanning for this specific key
+# Disable secret scanning for these specific keys
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "VITE_UNSPLASH_ACCESS_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_UNSPLASH_ACCESS_KEY,UNSPLASH_ACCESS_KEY"
