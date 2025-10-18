@@ -19,8 +19,7 @@ interface UnsplashSearchResponse {
     total: number;
 }
 
-// Using Vite environment variable (will be replaced at build time)
-const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
+// Using serverless function to keep API key secure
 
 // Function to generate properly sized raw URL
 export const getSizedImageUrl = (rawUrl: string, size: number): string => {
@@ -43,9 +42,9 @@ export const useUnsplashSearch = (query: string, debounceMs: number = 1000) => {
 
         try {
             const response = await fetch(
-                `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+                `/.netlify/functions/unsplash-search?query=${encodeURIComponent(
                     searchQuery
-                )}&per_page=10&client_id=${UNSPLASH_ACCESS_KEY}`
+                )}`
             );
 
             if (!response.ok) {
