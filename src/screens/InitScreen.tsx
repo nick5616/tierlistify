@@ -151,29 +151,36 @@ const InitScreen: React.FC<InitScreenProps> = ({
                         </label>
                         <div className="grid grid-cols-4 gap-3 mb-4">
                             {(currentTierList.items || []).map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden"
-                                >
-                                    {item.image.startsWith("http") ? (
-                                        <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="text-2xl">
-                                            {item.image}
-                                        </div>
-                                    )}
+                                <div>
+                                    <div className="w-full flex items-center justify-center">
+                                        {item.name}
+                                    </div>
+                                    <div
+                                        key={item.id}
+                                        className="aspect-square bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden"
+                                    >
+                                        {item.image.startsWith("http") ? (
+                                            <img
+                                                src={item.image}
+                                                alt={item.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="text-2xl">
+                                                {item.image}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
-                            <button
-                                className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
-                                onClick={onAddItem}
-                            >
-                                <Plus className="w-6 h-6" />
-                            </button>
+                            <div className="flex items-end">
+                                <button
+                                    className="aspect-square bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors w-full"
+                                    onClick={onAddItem}
+                                >
+                                    <Plus className="w-6 h-6" />
+                                </button>
+                            </div>
                         </div>
                     </div>
 

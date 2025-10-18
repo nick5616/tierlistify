@@ -40,22 +40,27 @@ const UnrankedItemsSection: React.FC<{
     });
 
     return (
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg py-4">
             <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Unranked Items ({items.length})
             </h3>
             <div
                 ref={setNodeRef}
-                className={`flex flex-wrap gap-2 min-h-[60px] p-2 rounded transition-colors ${
+                className={`flex flex-wrap gap-2 min-h-[60px] py-2 rounded transition-colors ${
                     isOver ? "bg-blue-100" : ""
                 }`}
             >
                 {items.map((item) => (
-                    <DraggableItem
-                        key={item.id}
-                        item={item}
-                        isDragging={activeId === item.id}
-                    />
+                    <div>
+                        <div className="w-full flex items-center justify-center text-sm">
+                            {item.name}
+                        </div>
+                        <DraggableItem
+                            key={item.id}
+                            item={item}
+                            isDragging={activeId === item.id}
+                        />
+                    </div>
                 ))}
             </div>
         </div>
