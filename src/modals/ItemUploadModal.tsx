@@ -50,11 +50,12 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
 
     // Auto-select the first image when search results come in, or clear when no query
     useEffect(() => {
-        if (images.length > 0 && itemName.trim()) {
+        if (images.length > 0 && itemName.trim() && !previewRef.current) {
             const firstImageUrl = getSizedImageUrl(
                 images[0].urls.raw,
                 imageSize
             );
+            console.log("firstImageUrl", firstImageUrl);
             onImageSelect(firstImageUrl);
         } else if (!itemName.trim() && selectedImage) {
             // Clear the selected image when input is cleared
@@ -89,7 +90,9 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
 
             <div
                 ref={previewRef}
-                className="bg-gray-100 rounded-lg flex items-center justify-center min-h-[200px]"
+                className={`${
+                    !previewRef.current ? "bg-gray-100" : "bg-transparent"
+                } rounded-lg flex items-center justify-center min-h-[200px]`}
             >
                 {loading ? (
                     <div className="text-center text-gray-500">
