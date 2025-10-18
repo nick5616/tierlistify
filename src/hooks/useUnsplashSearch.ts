@@ -21,7 +21,7 @@ interface UnsplashSearchResponse {
 
 // Using environment variable for API key
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
-
+console.log("UNSPLASH_ACCESS_KEY", UNSPLASH_ACCESS_KEY);
 // Function to generate properly sized raw URL
 export const getSizedImageUrl = (rawUrl: string, size: number): string => {
     return `${rawUrl}&w=${size}&h=${size}&fit=crop&crop=center`;

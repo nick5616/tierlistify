@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+# Tell Netlify to ignore this specific secret
+[secrets]
+  scan_omit_keys = ["VITE_UNSPLASH_ACCESS_KEY"]
