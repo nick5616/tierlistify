@@ -19,6 +19,7 @@ interface UnsplashSearchResponse {
     total: number;
 }
 
+// Using Vite environment variable (will be replaced at build time)
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 
 // Function to generate properly sized raw URL
