@@ -21,7 +21,7 @@ const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
 }) => {
     const { images, loading, error } = useUnsplashSearch(searchQuery, 1000);
     const gridRef = useRef<HTMLDivElement>(null);
-    const [imageSize, setImageSize] = useState(100); // Default size for grid items
+    const [imageSize, setImageSize] = useState(150); // Default size for grid items
     const [previewSize, setPreviewSize] = useState(300); // Size for preview/selection
 
     // Calculate image size based on grid container width
@@ -69,7 +69,7 @@ const ImageSearchModal: React.FC<ImageSearchModalProps> = ({
                     <p>Error: {error}</p>
                 </div>
             ) : images.length > 0 ? (
-                <div ref={gridRef} className="grid grid-cols-4 gap-3">
+                <div ref={gridRef} className="grid grid-cols-2 gap-3">
                     {images.map((image) => (
                         <button
                             key={image.id}

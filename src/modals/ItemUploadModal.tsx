@@ -89,7 +89,7 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
 
             <div
                 ref={previewRef}
-                className="bg-gray-100 rounded-lg p-8 flex items-center justify-center min-h-[200px]"
+                className="bg-gray-100 rounded-lg flex items-center justify-center min-h-[200px]"
             >
                 {loading ? (
                     <div className="text-center text-gray-500">
