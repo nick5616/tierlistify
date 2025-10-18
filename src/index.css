@@ -65,13 +65,6 @@ body {
     animation: slideIn 0.3s ease-out;
 }
 
-/* AdSense Banner Styles */
-.adsense-container {
-    display: block;
-    text-align: center;
-    width: 100%;
-}
-
 .bottom-ad-container {
     position: sticky;
     bottom: 0;
@@ -83,11 +76,6 @@ body {
 
 /* Mobile-specific ad styles */
 @media (max-width: 768px) {
-    .adsense-container {
-        max-width: 100%;
-        padding: 0 8px;
-    }
-
     .bottom-ad-container {
         padding: 8px;
     }
