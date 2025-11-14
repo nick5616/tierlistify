@@ -1,16 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
 import { TierList } from "../types";
+import { seedTemplates, getTemplates } from "../utils/seedTemplates";
 
 const STORAGE_KEY = "tierlistify-tier-lists";
 
 export const useTierLists = () => {
     const [tierLists, setTierLists] = useState<TierList[]>([]);
+    const [templates, setTemplates] = useState<TierList[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Load tier lists from localStorage on mount
+    // Seed templates and load tier lists from localStorage on mount
     useEffect(() => {
         try {
+            // Seed templates on first load
+            seedTemplates();
+            const loadedTemplates = getTemplates();
+            setTemplates(loadedTemplates);
+
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 const parsedTierLists = JSON.parse(stored);
@@ -49,6 +56,22 @@ export const useTierLists = () => {
     const addTierList = useCallback((tierList: TierList) => {
         setTierLists((prev) => [...prev, tierList]);
     }, []);
+
+    const useTemplate = useCallback((template: TierList) => {
+        // Create a copy of the template with a new ID and current timestamp
+        const newTierList: TierList = {
+            ...template,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+            // Reset all items to untiered
+            items: template.items.map((item) => ({
+                ...item,
+                tier: null,
+            })),
+        };
+        addTierList(newTierList);
+        return newTierList;
+    }, [addTierList]);
 
     const updateTierList = useCallback(
         (id: string, updates: Partial<TierList>) => {
@@ -96,12 +119,14 @@ export const useTierLists = () => {
 
     return {
         tierLists,
+        templates,
         isLoading,
         error,
         addTierList,
         updateTierList,
         deleteTierList,
         getTierListById,
+        useTemplate,
         clearAllTierLists,
         clearAllData,
     };

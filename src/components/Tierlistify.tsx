@@ -26,10 +26,12 @@ const Tierlistify: React.FC = () => {
     // Use custom hooks for persistent state management
     const {
         tierLists,
+        templates,
         isLoading: tierListsLoading,
         error: tierListsError,
         addTierList,
         getTierListById,
+        useTemplate,
     } = useTierLists();
 
     const { currentTierList, updateCurrentTierList, clearCurrentTierList } =
@@ -129,6 +131,12 @@ const Tierlistify: React.FC = () => {
     const handleSelectList = (list: TierList) => {
         updateCurrentTierList(list);
         navigate(`/view/${list.id}`);
+    };
+
+    const handleUseTemplate = (template: TierList) => {
+        const newTierList = useTemplate(template);
+        updateCurrentTierList(newTierList);
+        navigate(`/creation/${newTierList.id}`);
     };
 
     const handleAddItem = () => {
@@ -236,8 +244,10 @@ const Tierlistify: React.FC = () => {
                     element={
                         <HomeScreen
                             tierLists={tierLists}
+                            templates={templates}
                             onCreateNew={handleCreateNew}
                             onSelectList={handleSelectList}
+                            onUseTemplate={handleUseTemplate}
                         />
                     }
                 />

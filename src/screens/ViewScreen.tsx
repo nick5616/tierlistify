@@ -58,11 +58,18 @@ const ViewScreen: React.FC<ViewScreenProps> = ({
                     {/* Share section at bottom */}
                     <div className="pt-6 border-t border-gray-200">
                         <div className="text-center mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
                                 Share Your Tier List
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-700 mb-2">
                                 Let others see your rankings
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                This isn&apos;t implemented because there are
+                                things I&apos;d rather do than make a backend
+                                for this. If you want to use this, let me know!
+                                That would make it worthwhile to implement,
+                                maybe even continue development :D
                             </p>
                         </div>
                         <div className="flex gap-3 mb-8">

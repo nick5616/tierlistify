@@ -38,7 +38,9 @@ const UnrankedItemsSection: React.FC<{
     const { isOver, setNodeRef } = useDroppable({
         id: "unranked",
     });
-
+    if (items.length === 0) {
+        return null;
+    }
     return (
         <div className="bg-gray-50 rounded-lg py-4">
             <h3 className="text-sm font-medium text-gray-700 mb-3">

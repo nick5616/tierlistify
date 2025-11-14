@@ -9,6 +9,15 @@ const getTierItemImageUrl = (imageUrl: string): string => {
         return imageUrl; // Return as-is for emoji or other non-HTTP images
     }
 
+    // Only apply Unsplash sizing to Unsplash URLs
+    const isUnsplashUrl = imageUrl.includes("unsplash.com") || 
+                         imageUrl.includes("images.unsplash.com");
+    
+    if (!isUnsplashUrl) {
+        // For non-Unsplash URLs (like Wikimedia Commons), return as-is
+        return imageUrl;
+    }
+
     // If it's already a sized URL, extract the raw URL and resize it
     if (imageUrl.includes("&w=") && imageUrl.includes("&h=")) {
         // Extract the raw URL (everything before the first &w= parameter)
@@ -16,7 +25,7 @@ const getTierItemImageUrl = (imageUrl: string): string => {
         return getSizedImageUrl(rawUrl, 48); // 48px for tier list items
     }
 
-    // If it's a raw URL, add sizing parameters
+    // If it's a raw Unsplash URL, add sizing parameters
     return getSizedImageUrl(imageUrl, 48);
 };
 
