@@ -32,7 +32,7 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageSize, setImageSize] = useState(200); // Default size
     const [uploadedImage, setUploadedImage] = useState<string>("");
-
+    const createButtonDisabled = !itemName || !selectedImage;
     // Calculate image size based on preview component width
     useEffect(() => {
         const updateImageSize = () => {
@@ -70,12 +70,32 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
 
     // Auto-select the first image when search results come in, or clear when no query
     useEffect(() => {
-        if (
+        console.log("images", images);
+        console.log("itemName", itemName);
+        console.log("previewRef", previewRef.current);
+        console.log("uploadedImage", uploadedImage);
+        const userJustSelectedSearchResult = selectedImage;
+        console.log(
+            "userJustSelectedSearchResult",
+            userJustSelectedSearchResult
+        );
+        const shouldSelectImage =
             images.length > 0 &&
             itemName.trim() &&
-            !previewRef.current &&
-            !uploadedImage
-        ) {
+            (!previewRef.current || !userJustSelectedSearchResult) &&
+            !uploadedImage;
+        console.log("shouldSelectImage", shouldSelectImage);
+        console.log("images.length > 0", images.length > 0);
+        console.log("itemName.trim()", itemName.trim());
+        console.log("!previewRef.current", !previewRef.current);
+        console.log(
+            "!userJustSelectedSearchResult",
+            !userJustSelectedSearchResult
+        );
+        console.log("selectedImage", selectedImage);
+        console.log("!uploadedImage", !uploadedImage);
+        console.log("shouldSelectImage", shouldSelectImage);
+        if (shouldSelectImage) {
             const firstImageUrl = getSizedImageUrl(
                 images[0].urls.raw,
                 imageSize
@@ -83,9 +103,12 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
             console.log("firstImageUrl", firstImageUrl);
             onImageSelect(firstImageUrl);
         } else if (!itemName.trim() && selectedImage) {
+            console.log("clearing image");
             // Clear the selected image when input is cleared
             onImageSelect("");
             setUploadedImage("");
+        } else {
+            console.log("no image to clear");
         }
     }, [
         images,
@@ -211,7 +234,7 @@ const ItemUploadModal: React.FC<ItemUploadModalProps> = ({
             <Button
                 variant="primary"
                 fullWidth
-                disabled={!itemName || !selectedImage}
+                disabled={createButtonDisabled}
                 onClick={handleCreate}
             >
                 Create
