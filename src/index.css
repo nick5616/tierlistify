@@ -2,101 +2,202 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    color-scheme: dark;
+
+    --canvas: #111113;
+    --surface: #1b1b1f;
+    --raised: #27272d;
+    --line: #313138;
+    --ink: #f6f5f1;
+    --muted: #a3a3ad;
+    --faint: #6f6f7a;
+    --accent: #ffd84d;
+    --on-accent: #17150a;
+    --danger: #ff7b7b;
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    /* Height the on-screen keyboard covers. Set in useKeyboardInset. */
+    --keyboard: 0px;
+}
+
+/*
+ * The app is a fixed shell with its own scroll areas. Letting the document
+ * scroll brings back rubber-banding and pull-to-refresh mid-drag.
+ */
 html,
-body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+body,
+#root {
+    position: fixed;
+    inset: 0;
     overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--canvas);
 }
 
-/* Mobile viewport fixes */
-@supports (height: 100dvh) {
-    html,
-    body {
-        height: 100dvh; /* Dynamic viewport height for mobile */
-    }
+body {
+    margin: 0;
+    color: var(--ink);
+    font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Safe area for mobile devices */
-.pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 1rem);
+button,
+a,
+[role="button"] {
+    touch-action: manipulation;
 }
 
-/* Improve mobile touch dragging */
-[data-testid] {
-    touch-action: none; /* Prevent scrolling when touching draggable items */
+button {
+    cursor: pointer;
 }
 
-/* Better touch targets for mobile */
-@media (pointer: coarse) {
-    .draggable-item {
-        min-height: 44px; /* Minimum touch target size */
-        min-width: 44px;
-    }
+button:disabled {
+    cursor: default;
 }
 
-@keyframes fadeIn {
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Fields show focus on their border instead, including wrapped search boxes. */
+input:focus-visible,
+textarea:focus-visible {
+    outline: none;
+}
+
+input:focus-visible:not([type="range"]),
+textarea:focus-visible,
+label:focus-within {
+    border-color: var(--accent);
+}
+
+/* Below 16px, iOS zooms the page on focus and doesn't zoom back. */
+input,
+textarea {
+    font-size: 16px;
+}
+
+.scroll-area {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tiles: suppress everything a long press normally triggers. */
+.tile {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+}
+
+.tile img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Must agree with the gesture rules in useDragEngine. */
+[data-scrolls="true"] .tile[data-drag-zone="tray"] {
+    touch-action: pan-x;
+}
+
+[data-scrolls="true"] .tile[data-drag-zone="board"] {
+    touch-action: pan-y;
+}
+
+.is-dragging,
+.is-dragging * {
+    cursor: grabbing !important;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.tier-row {
+    transition:
+        background-color 120ms ease,
+        box-shadow 120ms ease;
+}
+
+.tier-row[data-active="true"] {
+    background: color-mix(in srgb, var(--tier) 14%, var(--surface));
+    box-shadow: inset 0 0 0 2px var(--tier);
+}
+
+.drop-caret {
+    border-radius: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.pressable {
+    transition:
+        transform 90ms ease,
+        filter 90ms ease;
+}
+
+.pressable:active:not(:disabled) {
+    transform: scale(0.96);
+    filter: brightness(1.12);
+}
+
+@keyframes rise {
     from {
         opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+        transform: translateY(10px);
     }
 }
 
-@keyframes slideIn {
+@keyframes sheet-in {
     from {
-        transform: translateX(100%);
-    }
-    to {
-        transform: translateX(0);
+        transform: translateY(100%);
     }
 }
 
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.animate-slide-in {
-    animation: slideIn 0.3s ease-out;
-}
-
-.bottom-ad-container {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Mobile-specific ad styles */
-@media (max-width: 768px) {
-    .bottom-ad-container {
-        padding: 8px;
-    }
-
-    /* Ensure ads don't interfere with mobile navigation */
-    .bottom-ad-container {
-        padding-bottom: env(safe-area-inset-bottom, 8px);
+@keyframes fade-in {
+    from {
+        opacity: 0;
     }
 }
 
-/* Layout with ads specific styles */
-.layout-with-ads {
-    height: 100vh;
-    height: 100dvh; /* Use dynamic viewport height on supported browsers */
-    display: flex;
-    flex-direction: column;
+.anim-rise {
+    animation: rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-/* Ensure content scrolls properly above the ad */
-.layout-with-ads > div:first-child {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+.anim-sheet {
+    animation: sheet-in 260ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.anim-fade {
+    animation: fade-in 180ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .anim-rise,
+    .anim-sheet,
+    .anim-fade {
+        animation: none;
+    }
+
+    .pressable,
+    .tier-row {
+        transition: none;
+    }
 }

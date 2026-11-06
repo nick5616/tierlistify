@@ -1,100 +1,132 @@
-import React from "react";
-import { ChevronLeft, Share2, Home } from "lucide-react";
-import { TierList } from "../types";
-import AnimatedScreen from "../components/AnimatedScreen";
-import Button from "../components/Button";
-import TierBox from "../components/TierBox";
+import { useState } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import {
+    ChevronLeft,
+    Download,
+    Globe,
+    ListOrdered,
+    Trash2,
+} from "lucide-react";
+import type { TierList } from "../types";
+import { saveListImage } from "../lib/exportImage";
+import { useLists } from "../state/lists";
+import { useSheetRoute } from "../hooks/useSheetRoute";
+import { useToast } from "../components/Toast";
+import { Button, IconButton, Splash, TopBar } from "../components/ui";
+import TierTable from "../components/TierTable";
+import PublishSheet from "../sheets/PublishSheet";
 
-interface ViewScreenProps {
-    tierList: Partial<TierList>;
-    onBack: () => void;
-    onShare?: () => void;
-    onGoHome?: () => void;
+export default function ViewScreen() {
+    const { id } = useParams();
+    const { get, ready } = useLists();
+    const list = id ? get(id) : undefined;
+
+    if (!ready) return <Splash />;
+    if (!list) return <Navigate to="/" replace />;
+    return <View list={list} />;
 }
 
-const ViewScreen: React.FC<ViewScreenProps> = ({
-    tierList,
-    onBack,
-    onShare,
-    onGoHome,
-}) => {
+function View({ list }: { list: TierList }) {
+    const navigate = useNavigate();
+    const toast = useToast();
+    const { remove, restore } = useLists();
+    const { sheet, open, close } = useSheetRoute();
+    const [saving, setSaving] = useState(false);
+
+    const save = async () => {
+        setSaving(true);
+        try {
+            const result = await saveListImage(list);
+            if (result === "downloaded") toast("Image saved");
+        } catch {
+            toast("Couldn't create the image");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const deleteList = () => {
+        remove(list.id);
+        navigate("/", { replace: true });
+        toast("List deleted", {
+            action: { label: "Undo", onPress: () => restore(list) },
+        });
+    };
+
     return (
-        <AnimatedScreen animation="fade">
-            <div className="max-w-md mx-auto min-h-screen flex flex-col pb-safe">
-                <div className="flex items-center justify-between mb-6 pt-4">
-                    <div className="flex items-center space-x-2">
-                        <Button variant="icon" onClick={onBack}>
-                            <ChevronLeft className="w-6 h-6 text-gray-600" />
-                        </Button>
-                        <Button variant="icon" onClick={onGoHome}>
-                            <Home className="w-5 h-5 text-gray-600" />
-                        </Button>
-                    </div>
-                    <h1 className="text-xl font-semibold text-gray-900">
-                        {tierList.name}
-                    </h1>
-                    <Button variant="icon" onClick={onShare}>
-                        <Share2 className="w-5 h-5" />
-                    </Button>
-                </div>
+        <div className="flex h-full flex-col">
+            <TopBar>
+                <IconButton
+                    label="Back to home"
+                    onClick={() => navigate("/?tab=mine")}
+                >
+                    <ChevronLeft size={26} />
+                </IconButton>
+                <h1 className="min-w-0 flex-1 truncate font-display text-[17px] font-bold">
+                    {list.name || "Untitled tier list"}
+                </h1>
+                <IconButton label="Delete list" onClick={deleteList}>
+                    <Trash2 size={19} className="text-muted" />
+                </IconButton>
+            </TopBar>
 
-                <div className="flex-1 space-y-4 overflow-y-auto pb-6">
-                    {tierList.tiers?.map((tier) => {
-                        const tieredItems =
-                            tierList.items?.filter(
-                                (item) => item.tier === tier.name
-                            ) || [];
-                        return (
-                            <TierBox
-                                key={tier.name}
-                                tier={tier.name}
-                                color={tier.color}
-                                items={tieredItems}
-                                isPreview
-                            />
-                        );
-                    })}
-
-                    {/* Share section at bottom */}
-                    <div className="pt-6 border-t border-gray-200">
-                        <div className="text-center mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                Share Your Tier List
-                            </h3>
-                            <p className="text-sm text-gray-700 mb-2">
-                                Let others see your rankings
-                            </p>
-                            <p className="text-sm text-gray-600">
-                                This isn&apos;t implemented because there are
-                                things I&apos;d rather do than make a backend
-                                for this. If you want to use this, let me know!
-                                That would make it worthwhile to implement,
-                                maybe even continue development :D
-                            </p>
-                        </div>
-                        <div className="flex gap-3 mb-8">
-                            <Button
-                                variant="secondary"
-                                onClick={onGoHome}
-                                className="w-24"
-                            >
-                                <Home className="w-4 h-4 mr-1" />
-                                Home
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={onShare}
-                                className="flex-1"
-                            >
-                                <Share2 className="w-5 h-5 mr-2" />
-                                Copy Link to Share
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+            <div className="scroll-area min-h-0 flex-1 px-1.5 pb-4 pt-1.5">
+                {list.published && (
+                    <Link
+                        to={`/p/${list.published.id}`}
+                        className="mb-2 flex items-center gap-2 rounded-xl bg-surface px-3 py-2.5 text-sm"
+                    >
+                        <Globe size={16} className="shrink-0 text-accent" />
+                        <span className="min-w-0 truncate text-muted">
+                            Published as{" "}
+                            <span className="font-semibold text-ink">
+                                {list.published.author}
+                            </span>
+                        </span>
+                    </Link>
+                )}
+                <TierTable
+                    tiers={list.tiers}
+                    items={list.items}
+                    showLabels={list.showLabels}
+                />
             </div>
-        </AnimatedScreen>
-    );
-};
 
-export default ViewScreen;
+            <div
+                className="grid shrink-0 grid-cols-[1fr_1fr_1.4fr] gap-2 border-t border-line px-3 pt-2.5"
+                style={{ paddingBottom: "calc(10px + var(--safe-bottom))" }}
+            >
+                <Button
+                    variant="secondary"
+                    icon={<ListOrdered size={18} />}
+                    className="px-2"
+                    onClick={() => {
+                        navigate(`/rank/${list.id}`);
+                    }}
+                >
+                    Edit
+                </Button>
+                <Button
+                    variant="secondary"
+                    busy={saving}
+                    icon={<Download size={18} />}
+                    className="px-2"
+                    onClick={save}
+                >
+                    Save
+                </Button>
+                <Button
+                    icon={<Globe size={18} />}
+                    className="px-2"
+                    onClick={() => open("publish")}
+                >
+                    {list.published ? "Published" : "Publish"}
+                </Button>
+            </div>
+
+            {sheet === "publish" && (
+                <PublishSheet list={list} onClose={close} />
+            )}
+        </div>
+    );
+}
